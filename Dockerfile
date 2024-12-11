@@ -1,26 +1,21 @@
-FROM node:18 AS build
+FROM node:23.1.0
 
-WORKDIR /app
+WORKDIR /src
 
-COPY package*.json ./
+# Copy package.json and yarn.lock to the container
+COPY package.json pnpm-lock.yaml ./
 
-RUN npm install --legacy-peer-deps
+# Install dependencies
+RUN npm --legacy-peer-deps install
 
+# Push drizzle-schema
+RUN npx drizzle-kit push
+
+# Copy the app's source code to the container
 COPY . .
 
-ARG VITE_REACT_APP_TEST_1
-ENV VITE_REACT_APP_TEST_1=${VITE_REACT_APP_TEST_1}
-
-RUN echo THE VAL IS $VITE_REACT_APP_TEST_1
-
+# Build the Next app
 RUN npm run build
 
-FROM nginx:alpine
-
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-COPY --from=build /app/dist /usr/share/nginx/html
-
-EXPOSE 8080
-
-CMD ["nginx", "-g", "daemon off;"]
+# Serve the production build
+CMD ["npm", "start"]
