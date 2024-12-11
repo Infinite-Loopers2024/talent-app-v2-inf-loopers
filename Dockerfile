@@ -6,7 +6,7 @@ WORKDIR /src
 COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN npm --legacy-peer-deps install
+RUN npm install --legacy-peer-deps 
 
 # Push drizzle-schema
 RUN npx drizzle-kit push
